@@ -1,0 +1,90 @@
+1. cfl_req, wpedt_max, mi_me, L_di, Ti_Te, vthe, wpe_wce, taui, quota
+2. nppc, Lx, Ly, Lz, topology_x, topology_y, topology_z, nx, ny, nz
+3. restart_interval, interval, fields_interval, ehydro_interval, Hhydro_interval, eparticle_interval
+4. emax_band, emin_band, which can be ignored if nbands = 0.
+   emax_spect, emin_spect, which are Lorentz factor - 1. Make sure they are reasonable.
+5. nx_zone, ny_zone, nz_zone
+6. stride_particle_dump
+7. num_step
+8. nparticles_per_proc
+9. DUMP_DIR_FORMAT in reconnection.cc
+10. Comment #define ENERGY_BAND_DIAGNOSTICS and set nbands to 0 if needed
+11. Make sure that fields_interval and hydro_interval are set reasonable
+    when dumping both previous and next time steps
+12. Check whether macro definitions should be defined: HARRIS_SHEET, ELECTRONS_CARRRY_CURRENT,
+    LOCAL_PERTURBATION, DUMP_THREE_SUCCESSIVE_STEPS, OPEN_BOUNDARY_CONDITIONS,
+    TURBULENCE_MIXING_DIAGNOSTICS, WAVE_PERTURBATION, RELATIVISTIC_PLASMA
+13. Check whether to define DUMP_WITH_HDF5 for dumping fields and hydro in HDF5 format.
+    Check whether to define USE_VIOU for using Bin Dong's viou library instead of
+    build-in HDF5 dump routines in VPIC.
+14. Check whether to define SPECIES_ADVANCED_WITH_PART_EFIELD, SPECIES_ADVANCED_WITHOUT_EPERP,
+    CHECK_PARTICLE_CROSSING_EGTB for test-particle components
+15. Check whether to define ENABLE_RADIATION_REACTION for radiation reaction
+16. Remember to set the stripe for particle and spectrum directory. When dumping fields and hydro
+    in HDF5 format, it is better to set stripe for field_hdf5 and hydro_hdf5 as well.
+    This may not be important if dumping data to burst buffer. It may even slow down the IO.
+
+# Particle tracking
+1. Make sure to change particle_tracking, particle_select, nframes_per_tracer_file,
+   emf_at_tracer, hydro_at_tracer, num_emf, num_hydro
+2. Make sure the sum of num_emf and num_hydro == TRACER_NUM_ADDED_FIELDS
+3. tracer_dir in dumptracer_h5part.cc
+4. Using line "int tag = ((((int)rank())<<19) | (itracer & 0x7ffff));" to set right number
+of bits for MPI rank and tracer. Make sure that there are enough space for large 3D run
+with a large number of MPI ranks. Note that 0x7ffff is "1111111111111111111" (19 ones).
+So changing the number for rank (e.g. 19), make sure to change 0x7ffff as well.
+For example, when (((int)rank())<<13), we need to change 0x7ffff to "0x1fff", which
+corresponds to "1111111111111" (13 ones). This indicates to use 520k for MPI ranks and
+8192 for tracer particle tags.
+
+# Restart/restore
+1. Remember that all restart files are saved in restore1 in the 3D production run,
+   so we just overwrite the restart files.
+2. We need to change the argument of advance_tracers, dump_tracer_restart, and
+   read_tracer_restart to 1.
+
+translate
+1. create data/ directory (May not need to)
+2. set strip size for data/ (May not need to)
+3. output_format, MPI topology
+4. MPI_INFO_SET (collective IO for larger job size)
+
+run script:
+1. stage_in and stage_out directories
+2. setup the input and output directories
+3. Comment stage_out lines for fields and hydro if not needed
+4. Change project name
+5. run directories in cori_knl_persistent.sh cori_translate.sh
+6. topology in translate should match with PIC run
+7. remember to create the run directory, e.g. $DW_PERSISTENT_STRIPED_reconnection/input
+
+* Copy needed files to input
+* Estimate how many BB are needed.
+* Remember to stage_in Makefile and reconnection.cc, which will be used by translate
+* Remember to set stripe size and count for all output directories on Lustre
+
+Computing resources:
+* Make sure that the memory is enough
+* Make sure that the storage space is enough
+* Create spectrum and particle directories and set stripe?
+* Remember that each field and hydro dump include ghost cells
+
+# Data needed for analysis
+For fluid-based and particle-based analysis, we need
+1. E and B at three steps. 6 * 3 = 18
+2. n at three steps for two species. 1 * 3 * 2 = 6
+3. v, u at three steps for two species. 6 * 3 * 2 = 36
+4. p at one step for two species. 9 * 1 * 2 = 18
+We also need current densities, although it can be easily calculated using velocities
+and number densities. 4
+So the total number of fields we need is 82, while we dumped 135 of them.
+The fields that we do not need include
+1. Magnetic field strength. 3
+2. Current densities at previous and post steps. 4 * 2 = 8
+3. Pressure tensor at previous and post steps. 9 * 2 * 2 = 36
+4. Kinetic energy densities. 3 * 2 = 6
+In total, 50 fields or hydro data are not needed.
+
+# VPIC source code
+1. Make sure that "#define DISABLE_DYNAMIC_RESIZING" in src/boundary/boundary_p.cc is commented,
+especially for relativistic simulations.
