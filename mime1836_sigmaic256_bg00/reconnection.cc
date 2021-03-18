@@ -220,7 +220,7 @@ begin_initialization {
 #endif
   double bg = 1E-6;        // guide field strength
   double theta   = 0.0;   // B0 = Bx
-  double taui    = 20000.0*sqrt(sigmai/0.1)/(wpe_wce*mi_me); // simulation wci's to run
+  double taui    = 5000.0*sqrt(sigmai/0.1)/(wpe_wce*mi_me); // simulation wci's to run
 
   double quota   = 15.5;          // run quota in hours
   double quota_sec = quota*3600;  // Run quota in seconds
@@ -255,11 +255,11 @@ begin_initialization {
   double electron_sort_interval = 25;   // Injector moments are also updated at this internal
   double nppc  =  100;                  // Average number of macro particle per cell per species
 
-  double nx = 1024;
+  double nx = 512;
   double ny = 1;
-  double nz = 512;
+  double nz = 256;
 
-  double Lx  = 512.0*sqrt(sigmai/0.1)/sqrt(mi_me)*di;   // size of box in x dimension
+  double Lx  = 256.0*sqrt(sigmai/0.1)/sqrt(mi_me)*di;   // size of box in x dimension
   double Ly  = ny * Lx / nx;  // size of box in y dimension
   double Lz  = nz * Lx / nx;  // size of box in z dimension
 
@@ -322,11 +322,11 @@ begin_initialization {
   double emax_spect = 1.0E6;    // maximum energy for energy spectrum diagnostics
   double emin_spect = 1.0E-4;   // minimum energy for energy spectrum diagnostics
   int nbins = 1000;             // # of energy bins for energy spectrum diagnostics
-  int nx_zone = 32;             // # of cells / zone along x for energy spectrum diagnostics
+  int nx_zone = 16;             // # of cells / zone along x for energy spectrum diagnostics
                                 // MAKE SURE that (nx / topology_x) is divisible by nx_zone
   int ny_zone = 1;             // # of cells / zone along y for energy spectrum diagnostics
                                 // MAKE SURE that (ny / topology_y) is divisible by ny_zone
-  int nz_zone = 256;           // # of cells / zone along z for energy spectrum diagnostics
+  int nz_zone = 128;           // # of cells / zone along z for energy spectrum diagnostics
                                 // MAKE SURE that (nz / topology_z) is divisible by nz_zone
 
   // particle dump

@@ -9,4 +9,4 @@ If you decide to modify the reconnection deck, see how to do that at [modify_rec
 
 If you hope to tracer some particles in high cadence to plot some particle trajectories as the simulation is running, checkout [particle_tracking](particle_tracking.md).
 
-Check out how to dump particle data at [modify_reconnection_deck](modify_reconnection_deck.md). You can plot some phase space diagram using the particle data. Check out a simple script [phase_diagram.py](phase_diagram.py) to do that.
+Check out how to dump particle data at [modify_reconnection_deck](modify_reconnection_deck.md). You can plot some phase space diagram using the particle data. Check out a simple script [phase_diagram.py](mime1836_sigmaic256_bg00/phase_diagram.py) to do that.
