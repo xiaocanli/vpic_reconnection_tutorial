@@ -18,7 +18,7 @@ cd build
 ../arch/cori-knl-openmp-hdf5
 ```
 
-On Frontera, use `../arch/tacc-frontera-hdf5` instead. This will produce the `bin/vpic` for compiling the deck. For Frontera, you need to modify `bin/vpic` to link the HDF5 library by adding `Wl,-rpath,$TACC_HDF5_LIB -L$TACC_HDF5_LIB -lhdf5 -lz` to `bin/vpic`. An example is given in this directory.
+On Frontera, use `../arch/tacc-frontera-hdf5` instead. It will produce the `bin/vpic` for compiling the deck. For Frontera, you need to modify `bin/vpic` to link the HDF5 library by adding `Wl,-rpath,$TACC_HDF5_LIB -L$TACC_HDF5_LIB -lhdf5 -lz` to `bin/vpic`. An example is given in this directory.
 
 Before compiling the deck, you need to load `module load cray-hdf5-parallel` on Cori or `module load phdf5` on Frontera. Modify `VPIC_DIR` in `Makefile_cori` or `Makefile_tacc`  and compile the deck using `make -f Makefile_cori` or `make -f Makefile_tacc`. There is a script `compile_deck.sh` for helping compile the deck and copy the source files to a safe place. 
 
@@ -33,7 +33,7 @@ On Frontera, you can request an interactive session using
 
 ```bash
 idev -p normal -N 2 -n 64 -m 60 -A PHY20020
-ibrun ./tail_hdf5.sh
+./reconnection.Linux
 ```
 The code will output fields and hydro data to `field_hdf5` and `hydro_hdf5`, respectively. Note that electron hydro data and ion hydro data are saved in different files. You can check what is included in the `.h5` files using `h5dump` after loading the HDF5 modules. For example, `h5dump -H fields_0.h5`
 ```
