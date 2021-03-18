@@ -33,7 +33,7 @@ On Frontera, you can request an interactive session using
 
 ```bash
 idev -p normal -N 2 -n 64 -m 60 -A PHY20020
-./reconnection.Linux
+ibrun ./reconnection.Linux
 ```
 The code will output fields and hydro data to `field_hdf5` and `hydro_hdf5`, respectively. Note that electron hydro data and ion hydro data are saved in different files. You can check what is included in the `.h5` files using `h5dump` after loading the HDF5 modules. For example, `h5dump -H fields_0.h5`
 ```
