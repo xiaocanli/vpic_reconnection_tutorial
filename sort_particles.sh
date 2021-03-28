@@ -53,7 +53,11 @@ echo "Additional flags: " $additional_flags
 
 cd ../
 
-# sort by particle energy
+# Sort the tracer particle at $tstep ($tstep_max in default) at the by particle
+# energies. This will generate a new file $energy_sorted_file in the directory
+# ($fpath below). Particles at the beginning of $energy_sorted_file have the
+# Lowest energy. Particles at the end of of $energy_sorted_file have the highest
+# energy.
 tinterval_file=$(($nsteps * $tstep_interval))
 tstep_file=$(( $tstep / $tinterval_file ))
 tstep_file=$(( $tstep_file * $tinterval_file))
@@ -82,9 +86,20 @@ srun -n $mpi_size \
                  --meta_group_name=$meta_group_name \
                  --group_name_output=$group_name_output
 
+# Sort tracer particles at all time steps by particle tags (q dataset in the
+# *.h5p files) and save the sorted tracers into $qtag_sorted_file.
+# At the same time, we will get some particle trajectories.
+# 1. We will select some high-energy particles from $energy_sorted_file based on
+#    $ratio_emax. Assuming the highest-energy particle has energy emax, we will
+#    search for particles with energies closest to but smaller than emax/ratio_emax.
+# 2. We will keep tracking the these selected tracer particles as we sort through
+#    the tracer particles at all time steps.
+# 3. We will save the tracer trajectory data into $filename_traj below. Each tracer
+#    particle in $filename_traj will occupy one group.
+
+# filename for particle trajectory data
 filename_traj=data/${particle}s_ntraj${ntraj}_${ratio_emax}emax.h5p
 
-# sort by particle tag and save sorted tracers
 srun -n $mpi_size \
 ./h5group-sorter -f $input_file \
                  -o $qtag_sorted_file \

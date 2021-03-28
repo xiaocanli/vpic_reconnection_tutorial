@@ -11,7 +11,18 @@ We can select a small fraction of particles in VPIC and track their history in h
 - Each of the tracer particles has a unique ID called `tag`. As the simulations evolve, particles will move all over the simulation box. `tag` enables particles to be tracked.
 - Make sure the lines including ` #include "dumptracer_hdf5_single.cc"` are uncommented.
 
-The simulations will write the tracer particle data into `tracer/tracer1` in default. Initially, particle `tag` monotonically increases in the file. But as the simulation evolves, particles are mixed. That's why we need to sort particles afterwords. We can use a parallel sorting code https://github.com/xiaocanli/vpic-sorter to do that. Please see the description there on how to compile the code. To run code, please follow `sort_particles.sh` in the current directory first. You need to copy `sort_particles.sh` to `vpic-sorter/config` first and modify the script for your simulation parameters. You can keep most of them as default and modify the following parameters.
+The simulations will write the tracer particle data into `tracer/tracer1` in default. We can use `h5dump` to check the trace files. For example,
+```sh
+cd tracer/tracer1/T.0
+h5dump -H tracers.h5p
+```
+You will find the file has a top group `/`, which include a sub-group `Step#0`. The sub-group includes its own three sub-groups `H_tracer`, `electron_tracer`, and `grid_metadata`. Each tracer sub-group includes several datasets: magnetic fields (`Bx`, `By`, `Bz`), electric fields (`Ex`, `Ey`, `Ez`), four-velocities (`Ux`, `Uy`, `Uy`), positions (`dX`, `dY`, `dZ`), 1D cell index `i`, and particle tag `q`. The positions have been adjusted to the VPIC simulation domain sizes ($L_x$, $L_y$, and $L_z$ in the unit of electron inertial length $d_e$). For example, `dX` is from `0` to $L_x$ and `dZ` is from $-L_z/2$ to $L_z/2$ in default. `q` is originally particle charge but not used during the VPIC simulation. It is used to be the particle tag because it is not easy to modify the particle particle data structure, which is currently fixed at 8 variables with 32 Bytes. Each of the dataset includes the information for all the tracer particles during the `nframes_per_tracer_file` time frames.
+
+Initially, particle `tag` monotonically increases in the file. But as the simulation evolves, particles are mixed. That's why we need to sort particles afterwords. We can use a parallel sorting code https://github.com/xiaocanli/vpic-sorter to do that. Please see the description there on how to compile the code. To run code, please follow `sort_particles.sh` in the current directory first. You need to copy `sort_particles.sh` to `vpic-sorter/config` first and modify the script for your simulation parameters.
+```sh
+cp sort_particles.sh YOUR_OWN_DIRECTORY/vpic-sorter/config
+```
+You can keep most of them as default and modify the following parameters.
 - `trace_particles`: if true, the code will trace `ntraj` particles after particles are sorted.
 - `save_sorted_files`: if true, sorted particle data will be saved to files. We can set it to false when, for example, we only want to tracer particle trajectories.
 - `run_name`: PIC simulation run name. Better to unique.
@@ -25,4 +36,4 @@ The simulations will write the tracer particle data into `tracer/tracer1` in def
 - `ratio_emax`: maximum energy / starting energy. 1 means to find the highest energy particles. A higher value means to find lower-energy particles.
 - `data_dir`: the directory where the trajectory data should be saved. If `trace_particles` is set true, the code will save the trajectory data to `data_dir`. The trajectory file will include `ntraj` tracer trajectories. Please modify the function in `plot_trajectory.py` in the current directory to read and plot the particle trajectories.
 
-This procedure is quite inconvenient. The code was originally designed for sorting tens of millions or even billions of tracer particles. For most cases, we only have about 1 million tracer particles. I think we can use python to sort the tracer particles instead, but I don't have a code to do that right now. We can read the tracer particle data as `numpy` arrays sort the data along one certain axis.
+Checkout more descriptions in `sort_particles.sh`. This procedure is quite inconvenient. The code was originally designed for sorting tens of millions or even billions of tracer particles. For most cases, we only have about 1 million tracer particles. I think we can use python to sort the tracer particles instead, but I don't have a code to do that right now. We can read the tracer particle data as `numpy` arrays sort the data along one certain axis.

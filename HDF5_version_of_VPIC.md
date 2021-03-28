@@ -4,6 +4,7 @@ Check out the hdf5_rebase branch of VPIC
 
 ```bash
 git clone https://github.com/lanl/vpic
+cd vpic
 git checkout hdf5_rebase
 ```
 
@@ -35,7 +36,7 @@ On Frontera, you can request an interactive session using
 idev -p normal -N 2 -n 64 -m 60 -A PHY20020
 ibrun ./reconnection.Linux
 ```
-The code will output fields and hydro data to `field_hdf5` and `hydro_hdf5`, respectively. Note that electron hydro data and ion hydro data are saved in different files. You can check what is included in the `.h5` files using `h5dump` after loading the HDF5 modules. For example, `h5dump -H fields_0.h5`
+The code will output fields and hydro data to `field_hdf5` and `hydro_hdf5`, respectively. Note that electron hydro data and ion hydro data are saved in different files. You can check what is included in the `.h5` files using `h5dump` after loading the HDF5 modules. To learn more about these command-line tools, please check out [HDF5 TUTORIAL: COMMAND-LINE TOOLS FOR VIEWING HDF5 FILES](https://support.hdfgroup.org/HDF5/Tutor/cmdtoolview.html). The whole [HDF5 TUTORIAL](https://support.hdfgroup.org/HDF5/Tutor/) is very helpful if you are not familiar with HDF5. For example, `h5dump -H fields_0.h5` gives
 ```
 HDF5 "fields_0.h5" {
 GROUP "/" {
