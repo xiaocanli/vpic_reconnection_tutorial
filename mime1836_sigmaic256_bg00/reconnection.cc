@@ -297,12 +297,12 @@ begin_initialization {
   double dt = cfl_req*dg/c;                      // courant limited time step
   if( wpe*dt>wpedt_max) dt=wpedt_max/wpe;        // override timestep if plasma frequency limited
 
-  /* int restart_interval = int(2000000.0/(wpe*dt)); */
-  int restart_interval = 50;                     // for testing
+  int restart_interval = int(2000000.0/(wpe*dt));
+  /* int restart_interval = 50;                     // for testing */
   int energies_interval = 100;
   /* int energies_interval = 1;                     // for testing */
-  /* int interval = int(100.0*sqrt(sigmai/0.1)/(wpe*dt)); */
-  int interval = 50;                             // for testing
+  int interval = int(100.0*sqrt(sigmai/0.1)/(wpe*dt));
+  /* int interval = 50;                             // for testing */
   int tracer_interval = int(5.0*sqrt(sigmai/0.1)/(wpe*dt));
   /* int tracer_interval = 10;                      // for testing */
   if (tracer_interval == 0) tracer_interval = 1;
@@ -354,8 +354,8 @@ begin_initialization {
   ///////////////////////////////////////////////
   // Setup high level simulation parameters
   sim_log("Setting up high-level simulation parameters. ");
-  /* num_step             = int(taui/(wci*dt)); */
-  num_step             = 75;  // for testing
+  num_step             = int(taui/(wci*dt));
+  /* num_step             = 100;  // for testing */
   status_interval      = 200;
   sync_shared_interval = status_interval/2;
   clean_div_e_interval = status_interval/2;
@@ -1596,7 +1596,7 @@ begin_diagnostics {
   /*--------------------------------------------------------------------------
    * Time-averaging field and hydro data output
    *------------------------------------------------------------------------*/
-#include "time_average_master.cc"
+/* #include "time_average_master.cc" */
 
   /*--------------------------------------------------------------------------
    * Energy Spectrum Output

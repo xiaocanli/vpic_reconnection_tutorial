@@ -24,3 +24,36 @@ If you decide to modify the reconnection deck (`reconnection.cc`), you need to m
   dump_particles("ion",subdir);
   ```
   Also, make sure to change `stride_particle_dump` if you only need a fraction of all the particles. For example, you can set `stride_particle_dump = 20` to dump 5\% of all the particles. In this method, particle data will be in binary format, and each MPI rank will write one particle file/step. This kind of N->N IO is not allowed in some HPC platforms (e.g., Frontera). That's why you may need to write the particle data in HDF5 format. Checkout `dump_with_h5part.cc` on the procedure. If you decide to do that, we can discuss the details.
+
+  Due to a limited number of particles, the PIC fields might be very noisy. For data analysis (e.g., generalized Ohm's law), we can perform spatial average or spatial filter to reduce the noise. Alternatively, we can time-average the field and hydro data during VPIC simulation. You need to uncomment the lines listed below if they are commented.
+  ```cpp
+  ...
+  #include "time_average_master.hh"
+  ...
+  // time-averaging diagnostic
+  int dis_nav;         // number of steps to average over
+  int dis_interval;    // number of steps between outputs.
+  int dis_iter;        // iteration count. 0 means we are not averaging at the moment
+  int dis_begin_int;   // the first time step of the interval
+  char fields_dir[128];
+  char hydro_dir[128];
+  char restart_avg_dir[128];
+  ...
+  #include "time_average_master.cc" 
+  ```
+  And you might need to modify `AVG_SPACING` and `AVG_TOTAL_STEPS` in `time_average_master.cc`.
+  - The default value of `AVG_SPACING` is 1, meaning that we will dump the averaged fields and hydro data every `fields_interval`. We usually don't need to change it.
+    ```cpp
+    global->dis_interval = AVG_SPACING*global->fields_interval; // number of steps between outputs.
+    ```
+  - The default value of `AVG_TOTAL_STEPS` is 21, meaning that we will average the data over 21 VPIC time steps.
+    ```cpp
+    global->dis_nav = AVG_TOTAL_STEPS; // number of steps to average over
+    ```
+  - As stated at the top of `time_average_master.cc`, we make the following assumptions
+    - The stride is 1 for all directions.
+    - `global->dis_nav` is smaller than `global->dis_interval/3`.
+    - We only need to dump electric field and magnetic field.
+    - `global->dis_nav` is odd.
+
+  The averaged data will be dumped in `fields-avg-hdf5`, `hydro-avg-hdf5`, and `restart-avg-hdf5`. You will notice that the code actually dumps three frames every `global->dis_interval`: one at `global->dis_interval - global->dis_nav`, one at `global->dis_interval`, and one at `global->dis_interval + global->dis_nav`. This is why we require `global->dis_nav` to be smaller than `global->dis_interval/3`. Otherwise, there will be overlaps between different averaged fields. We can use the three frames to do time-differencing calculations, for example, the inertial term in generalized Ohm's law.
