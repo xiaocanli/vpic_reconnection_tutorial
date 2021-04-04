@@ -13,6 +13,7 @@
 #include "injection.hh"   //  Subroutine to compute re-injection velocity
 #include "tracer.hh"
 #include "species_advance/species_advance_efield.h"
+#include "time_average_master.hh"
 #include "hdf5.h"
 
 #define NUMFOLD (rank()/32)
@@ -119,14 +120,14 @@ begin_globals {
   int nsp;              // number of species
   int nsp_efield;       // number of species for electric field diagnostics
 
-  // // time-averaging diagnostic
-  // int dis_nav;         // number of steps to average over
-  // int dis_interval;    // number of steps between outputs.
-  // int dis_iter;        // iteration count. 0 means we are not averaging at the moment
-  // int dis_begin_int;   // the first time step of the interval
-  // char fields_dir[128];
-  // char hydro_dir[128];
-  // char restart_avg_dir[128];
+  // time-averaging diagnostic
+  int dis_nav;         // number of steps to average over
+  int dis_interval;    // number of steps between outputs.
+  int dis_iter;        // iteration count. 0 means we are not averaging at the moment
+  int dis_begin_int;   // the first time step of the interval
+  char fields_dir[128];
+  char hydro_dir[128];
+  char restart_avg_dir[128];
 
   // particle tracking
   int tracer_interval;         // tracer info is saved or dumped every tracer_interval steps
@@ -220,7 +221,7 @@ begin_initialization {
 #endif
   double bg = 1E-6;        // guide field strength
   double theta   = 0.0;   // B0 = Bx
-  double taui    = 5000.0*sqrt(sigmai/0.1)/(wpe_wce*mi_me); // simulation wci's to run
+  double taui    = 2000.0*sqrt(sigmai/0.1)/(wpe_wce*mi_me); // simulation wci's to run
 
   double quota   = 15.5;          // run quota in hours
   double quota_sec = quota*3600;  // Run quota in seconds
@@ -296,12 +297,12 @@ begin_initialization {
   double dt = cfl_req*dg/c;                      // courant limited time step
   if( wpe*dt>wpedt_max) dt=wpedt_max/wpe;        // override timestep if plasma frequency limited
 
-  int restart_interval = int(2000000.0/(wpe*dt));
-  /* int restart_interval = 50;                     // for testing */
+  /* int restart_interval = int(2000000.0/(wpe*dt)); */
+  int restart_interval = 50;                     // for testing
   int energies_interval = 100;
   /* int energies_interval = 1;                     // for testing */
-  int interval = int(100.0*sqrt(sigmai/0.1)/(wpe*dt));
-  /* int interval = 50;                             // for testing */
+  /* int interval = int(100.0*sqrt(sigmai/0.1)/(wpe*dt)); */
+  int interval = 50;                             // for testing
   int tracer_interval = int(5.0*sqrt(sigmai/0.1)/(wpe*dt));
   /* int tracer_interval = 10;                      // for testing */
   if (tracer_interval == 0) tracer_interval = 1;
@@ -353,8 +354,8 @@ begin_initialization {
   ///////////////////////////////////////////////
   // Setup high level simulation parameters
   sim_log("Setting up high-level simulation parameters. ");
-  num_step             = int(taui/(wci*dt));
-  /* num_step             = 100;  // for testing */
+  /* num_step             = int(taui/(wci*dt)); */
+  num_step             = 75;  // for testing
   status_interval      = 200;
   sync_shared_interval = status_interval/2;
   clean_div_e_interval = status_interval/2;
@@ -1315,8 +1316,6 @@ begin_diagnostics {
    * particle tracking
    * -----------------------------------------------------------------------*/
 
-  static hid_t file_id = -1; // file handler for tracer particle file
-
   // Set TRACER_ACCUM_HYDRO to 1 if we need to accumulate hydro moments before
   // writing trajectory output. Since this involves a pass through all the particles
   // in the system as well as synchronization (which hits MPI), don't do this step
@@ -1597,7 +1596,7 @@ begin_diagnostics {
   /*--------------------------------------------------------------------------
    * Time-averaging field and hydro data output
    *------------------------------------------------------------------------*/
-//#include "time_average_master.cc"
+#include "time_average_master.cc"
 
   /*--------------------------------------------------------------------------
    * Energy Spectrum Output
@@ -1627,7 +1626,6 @@ begin_diagnostics {
     if (global->particle_tracing > 0) {
       //dump_tracer_restart(global->rtoggle);
       dump_tracer_restart(1);
-      H5Fclose(file_id);
     }
 
     // dump buffered data for restart
@@ -1680,7 +1678,6 @@ begin_diagnostics {
       if (global->particle_tracing > 0) {
         //dump_tracer_restart(global->rtoggle);
         dump_tracer_restart(1);
-        H5Fclose(file_id);
       }
 
       // dump buffered data for restart

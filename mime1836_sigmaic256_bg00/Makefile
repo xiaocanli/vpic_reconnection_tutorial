@@ -23,6 +23,10 @@ cleanall:
 	-rm -rf restart-avg
 	-rm -rf field_hdf5
 	-rm -rf hydro_hdf5
+	-rm -rf data
+	-rm -rf fields-avg-hdf5
+	-rm -rf hydro-avg-hdf5
+	-rm -rf restart-avg-hdf5
 #	-rm translate
 	-rm *.op
 	-rm *.ppu
