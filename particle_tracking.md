@@ -31,7 +31,7 @@ You can keep most of them as default and modify the following parameters.
 - `particle`: electron or H. It can be other species if the PIC simulation includes them.
 - `tstep_min` and `tstep_max`: minimum and maximum time steps.
 - `tstep_interval`: time step interval. It is the same as `tracer_interval` in the deck.
-- `nsteps`: save as `nframes_per_tracer_file` in the deck.
+- `nsteps`: same as `nframes_per_tracer_file` in the deck.
 - `mpi_size`: the number MPI processes for the sorting program.
 - `ratio_emax`: maximum energy / starting energy. 1 means to find the highest energy particles. A higher value means to find lower-energy particles.
 - `data_dir`: the directory where the trajectory data should be saved. If `trace_particles` is set true, the code will save the trajectory data to `data_dir`. The trajectory file will include `ntraj` tracer trajectories. Please modify the function in `plot_trajectory.py` in the current directory to read and plot the particle trajectories.
