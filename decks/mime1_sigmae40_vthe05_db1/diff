@@ -1,0 +1,722 @@
+3c3,4
+< //  Turbulence Problem
+---
+> //  Reconnection Problem --> single Current Sheet
+> //  The current sheet can be Force-free or Harris.
+9c10
+< /* #include <H5Part.h> */
+---
+> #include <H5Part.h>
+16,17c17,25
+< /* #include "species_advance/species_advance_efield.h" */
+< #include "hdf5.h"
+---
+> #include "species_advance/species_advance_efield.h"
+> //#include "hdf5.h"
+> 
+> // Whether to use Bin Dong's viou library at https://bitbucket.org/dbin_sdm/viou
+> /* #define USE_VIOU */
+> 
+> #ifdef USE_VIOU
+> #include "viou/viou.h"
+> #endif
+34,36d41
+< // Whether to simulation turbulence
+< /* #define TURBULENCE_SIMULATION */
+< 
+50c55
+< /* #define DUMP_THREE_SUCCESSIVE_STEPS */
+---
+> #define DUMP_THREE_SUCCESSIVE_STEPS
+160,171d164
+<   edata ede_wo_egtb_sironi1;
+<   edata edH_wo_egtb_sironi1;
+<   edata ede_wo_egtb_sironi2;
+<   edata edH_wo_egtb_sironi2;
+<   edata ede_wo_egtb_sironi3;
+<   edata edH_wo_egtb_sironi3;
+<   edata ede_wo_egtb_sironi4;
+<   edata edH_wo_egtb_sironi4;
+<   double gamma_sironi1; // fix gamma to a few when particles pass E > B
+<   double gamma_sironi2;
+<   double gamma_sironi3;
+<   double gamma_sironi4;
+275c268
+<   int nframes_per_tracer_file = 100; // number of frames of tracers saved in one tracer file
+---
+>   int nframes_per_tracer_file = 1000; // number of frames of tracers saved in one tracer file
+291c284
+<   int particle_select_part_efield = 20;
+---
+>   int particle_select_part_efield = 10;
+294c287
+<   int particle_select_egtb = 20;
+---
+>   int particle_select_egtb = 10;
+302c295
+<   double sigma = 100.0; // Magnetization factor (2*magnetic energy)/(electron rest energy)
+---
+>   double sigma = mi_me * 0.1; // Magnetization factor (2*magnetic energy)/(electron rest energy)
+324c317
+<   double Te      = 0.36;   // Electron temperature
+---
+>   double Te      = 1.0;   // Electron temperature
+326c319
+<   double vthe    = 0.2;   // Electron thermal speed over c
+---
+>   double vthe    = 0.1;   // Electron thermal speed over c
+330,336d322
+< #ifdef SPECIES_ADVANCED_WITH_PART_EFIELD
+<   double gamma_sironi1 = Te + 1; // fix gamma to a few when particles pass E > B
+<   double gamma_sironi2 = 10 * Te + 1;
+<   double gamma_sironi3 = gamma_sironi1;
+<   double gamma_sironi4 = gamma_sironi2;
+< #endif
+< 
+341c327
+<   double wpe_wce = 1.0;    // electron plasma freq / electron cyclotron freq
+---
+>   double wpe_wce = 1.0;           // electron plasma freq / electron cyclotron freq
+343c329
+<   double bg = 0.2;        // guide field strength
+---
+>   double bg = 0.6;        // guide field strength
+400a387,410
+>   /* double nx = 768; */
+>   /* double ny = 1; */
+>   /* double nz = 320; */
+> 
+>   /* double Lx  = 187.5/sqrt(mi_me)*di;   // size of box in x dimension */
+>   /* double Ly  = ny * Lx / nx;           // size of box in y dimension */
+>   /* double Lz  = 78.125/sqrt(mi_me)*di;  // size of box in z dimension */
+> 
+>   /* double topology_x = 16;  // Number of domains in x, y, and z */
+>   /* double topology_y = 1; */
+>   /* double topology_z = 2; */
+> 
+>   /* double nx = 3072; */
+>   /* double ny = 1; */
+>   /* double nz = 1280; */
+> 
+>   /* double Lx  = 750.0/sqrt(mi_me)*di;   // size of box in x dimension */
+>   /* double Ly  = ny * Lx / nx;           // size of box in y dimension */
+>   /* double Lz  = 312.5/sqrt(mi_me)*di;  // size of box in z dimension */
+> 
+>   /* double topology_x = 256;  // Number of domains in x, y, and z */
+>   /* double topology_y = 1; */
+>   /* double topology_z = 2; */
+> 
+407c417
+<   double Lz  = nz * Lx / nx;           // size of box in z dimension
+---
+>   double Lz  = 312.5/sqrt(mi_me)*di;  // size of box in z dimension
+459c469
+<   double dbz = 0.05*b0;                    // Perturbation in Bz rel. to Bo (Only change here)
+---
+>   double dbz = 0.02*b0;                    // Perturbation in Bz rel. to Bo (Only change here)
+462,474d471
+<   // parameters for turbulence simulations
+< #ifdef TURBULENCE_SIMULATION
+<   double db_rms = b0;                   // Turbulence amplitude db/b0
+<   int nmodes = 8;                       // Number of modes
+<   int nmodes_para = 2;                  // 3D only: Number of modes parallel to the mean field along z
+<   double db_amp;                        // Wave amplitude for each mode
+<   if (nz > 1) { // 3D
+<     db_amp = db_rms / (nmodes * 2) / sqrt(2 * nmodes_para); // both forward and backward
+<   } else {
+<     db_amp = db_rms / (nmodes * 2); // both forward and backward
+<   }
+< #endif
+< 
+492c489
+<   int restart_interval = int(10000000.0/(wpe*dt));
+---
+>   int restart_interval = int(100.0/(wci*dt));
+498,499c495,496
+<   int tracer_interval = int(0.25/(wci*dt));
+<   /* int tracer_interval = 1;                      // for testing */
+---
+>   /* int tracer_interval = int(0.25/(wci*dt)); */
+>   int tracer_interval = 1;                      // for testing
+507c504
+<   int eparticle_interval = 200000*interval;
+---
+>   int eparticle_interval = interval;
+520c517
+<   int ny_zone = 6;              // # of cells / zone along y for energy spectrum diagnostics
+---
+>   int ny_zone = 6;             // # of cells / zone along y for energy spectrum diagnostics
+522c519
+<   int nz_zone = 8;              // # of cells / zone along z for energy spectrum diagnostics
+---
+>   int nz_zone = 8;           // # of cells / zone along z for energy spectrum diagnostics
+636,642d632
+< #ifdef SPECIES_ADVANCED_WITH_PART_EFIELD
+<   global->gamma_sironi1 = gamma_sironi1;
+<   global->gamma_sironi2 = gamma_sironi2;
+<   global->gamma_sironi3 = gamma_sironi3;
+<   global->gamma_sironi4 = gamma_sironi4;
+< #endif
+< 
+672d661
+< #ifndef TURBULENCE_SIMULATION
+693d681
+< #endif // #ifndef TURBULENCE_SIMULATION
+731,733c719,720
+<   double nmovers_per_proc = 0.1*nparticles_per_proc;
+<   double ntracers_per_proc = 10*nparticles_per_proc/particle_select;
+<   double nmovers_tracer_per_proc = 0.1*ntracers_per_proc;
+---
+>   double nmovers_per_proc    = 0.1*nparticles_per_proc;
+>   int ntracers_per_proc      = 10*nparticles_per_proc/particle_select;
+740c727
+<   double nmovers_part_efield_per_proc = 0.3*nparticles_part_efield_per_proc;
+---
+>   double nmovers_part_efield_per_proc = 0.1*nparticles_part_efield_per_proc;
+746c733
+<   double nmovers_egtb_per_proc = 0.3*nparticles_egtb_per_proc;
+---
+>   double nmovers_egtb_per_proc = 0.1*nparticles_egtb_per_proc;
+783,799c770
+<   species_t *electron_wo_egtb_sironi1 = define_species("electron_wo_egtb_sironi1",-ec, me,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, electron_sort_interval, sort_method);
+<   species_t *ion_wo_egtb_sironi1 = define_species("ion_wo_egtb_sironi1", ec, mi,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, ion_sort_interval, sort_method);
+<   species_t *electron_wo_egtb_sironi2 = define_species("electron_wo_egtb_sironi2",-ec, me,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, electron_sort_interval, sort_method);
+<   species_t *ion_wo_egtb_sironi2 = define_species("ion_wo_egtb_sironi2", ec, mi,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, ion_sort_interval, sort_method);
+<   species_t *electron_wo_egtb_sironi3 = define_species("electron_wo_egtb_sironi3",-ec, me,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, electron_sort_interval, sort_method);
+<   species_t *ion_wo_egtb_sironi3 = define_species("ion_wo_egtb_sironi3", ec, mi,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, ion_sort_interval, sort_method);
+<   species_t *electron_wo_egtb_sironi4 = define_species("electron_wo_egtb_sironi4",-ec, me,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, electron_sort_interval, sort_method);
+<   species_t *ion_wo_egtb_sironi4 = define_species("ion_wo_egtb_sironi4", ec, mi,
+<       nparticles_part_efield_per_proc, nmovers_part_efield_per_proc, ion_sort_interval, sort_method);
+<   global->nsp_efield += 14;
+---
+>   global->nsp_efield += 6;
+843c814
+<           nmovers_tracer_per_proc, electron_sort_interval, sort_method);
+---
+>           nmovers_per_proc, electron_sort_interval, sort_method);
+846c817
+<           nmovers_tracer_per_proc, ion_sort_interval, sort_method);
+---
+>           nmovers_per_proc, ion_sort_interval, sort_method);
+1121,1213d1091
+< 
+< #ifdef TURBULENCE_SIMULATION
+<   // the setup follows Comisso & Sironi 19: 10.3847/1538-4357/ab4c33
+<   set_region_field( everywhere, 0, 0, 0, 0, 0, b0);
+<   seed_entropy( rank() );
+<   const double _x0 = grid->x0, _y0 = grid->y0, _z0 = grid->z0;
+<   const double _dx = grid->dx, _dy = grid->dy, _dz = grid->dz;
+<   const double _c  = grid->cvac;
+<   const int    _nx = grid->nx, _ny = grid->ny, _nz = grid->nz;
+<   double *phi_array;
+< 
+<   // set the phases of the modes
+<   int nphases;
+<   if (nz > 1) { // 3D
+<     nphases = nmodes * nmodes * nmodes_para * 4;
+<   } else {
+<     nphases = nmodes * nmodes * 2;
+<   }
+<   phi_array = new double[nphases];
+<   if (rank() == 0) {
+<     for (int m=0; m<nmodes; m++) {
+<       for (int n=0; n<nmodes; n++) {
+<         if (nz > 1) { // 3D
+<           for (int l=0; l<nmodes_para; l++) {
+<             int imode = 4 * ((m * nmodes + n) * nmodes_para + l); 
+<             for (int im=0; im<4; im++) {
+<               phi_array[imode+im] = uniform(rng(0), 0, 2 * M_PI);
+<             }
+<           }
+<         } else { // 2D
+<           int imode = 2 * (m * nmodes + n); 
+<           phi_array[imode] = uniform(rng(0), 0, 2 * M_PI);
+<           phi_array[imode+1] = uniform(rng(0), 0, 2 * M_PI);
+<         }
+<       }
+<     }
+<   }
+<   mp_barrier(); // Just to be safe
+<   MPI_Bcast(phi_array, nphases, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+< 
+<   for( int _k=0; _k<_nz+2; _k++ ) {
+<     const double _ze = _z0 + _dz*_k;
+<     const double _zc = _z0 + _dz*(_k-0.5);
+<     for( int _j=0; _j<_ny+2; _j++ ) {
+<       const double _ye = _y0 + _dy*_j;
+<       const double _yc = _y0 + _dy*(_j-0.5);
+<       field_t *_f = &field(0,_j,_k);
+<       for( int _i=0; _i<_nx+2; _i++ ) {
+<         const double _xe = _x0 + _dx*_i;
+<         const double _xc = _x0 + _dx*(_i-0.5);
+<         for (int m=1; m<nmodes+1; m++) {
+<           double kx = 2 * M_PI * m / Lx;
+<           for (int n=1; n<nmodes+1; n++) {
+<             double ky = 2 * M_PI * n / Ly;
+<             double kx_kxy = kx / sqrt(kx*kx + ky*ky);
+<             double ky_kxy = ky / sqrt(kx*kx + ky*ky);
+<             double _phi;
+<             if (nz == 1) { // 2D simulation
+<               // factor 2 means that forward and backward modes have the same amplitude but opposite phases
+<               int imode = 2 * ((m-1)*nmodes + n - 1);
+<               _phi = phi_array[imode];
+<               _f->cbx -= 2 * _c * db_amp * ky_kxy * sin(kx*_xe + ky*_yc + _phi);
+<               _f->cby += 2 * _c * db_amp * kx_kxy * sin(kx*_xc + ky*_ye + _phi);
+<               _phi = phi_array[imode+1];
+<               _f->cbx -= 2 * _c * db_amp * ky_kxy * sin(-kx*_xe + ky*_yc + _phi);
+<               _f->cby -= 2 * _c * db_amp * kx_kxy * sin(-kx*_xc + ky*_ye + _phi);
+<             } else { // 3D simulation
+<               for (int l=1; l<nmodes_para+1; l++) {
+<                 double kz = 2 * M_PI * l / Lz;
+<                 int imode = 4 * (((m - 1) * nmodes + n - 1) * nmodes_para + l - 1); 
+<                 _phi = phi_array[imode];
+<                 _f->cbx -= 2 * _c * db_amp * ky_kxy * sin(kx*_xe + ky*_yc + kz*_zc + _phi);
+<                 _f->cby += 2 * _c * db_amp * kx_kxy * sin(kx*_xc + ky*_ye + kz*_zc + _phi);
+<                 _phi = phi_array[imode+1];
+<                 _f->cbx -= 2 * _c * db_amp * ky_kxy * sin(-kx*_xe + ky*_yc + kz*_zc + _phi);
+<                 _f->cby -= 2 * _c * db_amp * kx_kxy * sin(-kx*_xc + ky*_ye + kz*_zc + _phi);
+<                 _phi = phi_array[imode+2];
+<                 _f->cbx += 2 * _c * db_amp * ky_kxy * sin(kx*_xe - ky*_yc + kz*_zc + _phi);
+<                 _f->cby += 2 * _c * db_amp * kx_kxy * sin(kx*_xc - ky*_ye + kz*_zc + _phi);
+<                 _phi = phi_array[imode+3];
+<                 _f->cbx += 2 * _c * db_amp * ky_kxy * sin(-kx*_xe - ky*_yc + kz*_zc + _phi);
+<                 _f->cby -= 2 * _c * db_amp * kx_kxy * sin(-kx*_xc - ky*_ye + kz*_zc + _phi);
+<               } // l
+<             }
+<           } // n
+<         } // m
+<         _f++;
+<       } // _i
+<     } // _j
+<   } // _k
+<   delete [] phi_array;
+< #else //#ifdef TURBULENCE_SIMULATION
+< 
+1261,1262d1138
+< #endif //#ifdef TURBULENCE_SIMULATION
+< 
+1277,1392d1152
+< #ifdef TURBULENCE_SIMULATION
+< 
+<   repeat ( Ne/nproc() ) {
+<     double x, y, z, ux, uy, uz, upa1, upe1, uz1, gu1;
+< 
+<     x = uniform(rng(0), xmin, xmax);
+<     y = uniform(rng(0), ymin, ymax);
+<     z = uniform(rng(0), zmin, zmax);
+< 
+<     // inject_particles() will return an error for particles no on this
+<     // node and will not inject particle locally
+< 
+< #ifdef RELATIVISTIC_PLASMA
+<     double fs0, f, fs, u2, gg, ue_range, ui_range;
+<     fs0 = 1.01;
+<     ue_range = factor*sqrt((Te/me) * (Te/me + 2));
+<     f = 1.0;
+<     fs = 0.0;
+<     do {
+<       upa1 = uniform(rng(0), -ue_range, ue_range);
+<       upe1 = uniform(rng(0), -ue_range, ue_range);
+<       uz1 = uniform(rng(0), -ue_range, ue_range);
+<       u2 = upa1*upa1 + upe1*upe1 + uz1*uz1;
+<       gg = sqrt(1.0 + u2);
+<       /* fs = exp(-u2/(1.0+gg)*me/Te); */
+<       fs = exp(-(gg-1)*me/Te);
+<       f  = uniform(rng(0), 0, 1) * fs0;
+<     } while(f > fs);
+< #else
+<     upa1 = normal(rng(0), 0, vthe);
+<     upe1 = normal(rng(0), 0, vthe);
+<     uz1 = normal(rng(0), 0, vthe);
+< #endif
+< 
+<     ux = upa1;
+<     uy = upe1;
+<     uz = uz1;
+< 
+<     inject_particle(electron, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<     ++iparticle;
+< #ifdef SPECIES_ADVANCED_WITH_PART_EFIELD
+<     if (iparticle%particle_select_part_efield == 0) {
+<       inject_particle(electron_wo_epara, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_eparay, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi1, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi2, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi3, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi4, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+< #ifdef SPECIES_ADVANCED_WITHOUT_EPERP
+<       inject_particle(electron_wo_eperp, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+< #endif
+<     }
+< #endif
+< #ifdef CHECK_PARTICLE_CROSSING_EGTB
+<     if (iparticle%particle_select_egtb == 0) {
+<       inject_particle(electron_egtb, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<     }
+< #endif
+< 
+< #ifdef RELATIVISTIC_PLASMA
+<     ui_range = factor*sqrt((Ti/mi) * (Ti/mi + 2));
+<     do {
+<       upa1 = uniform(rng(0), -ui_range, ui_range);
+<       upe1 = uniform(rng(0), -ui_range, ui_range);
+<       uz1 = uniform(rng(0), -ui_range, ui_range);
+<       u2 = upa1*upa1 + upe1*upe1 + uz1*uz1;
+<       gg = sqrt(1.0 + u2);
+<       /* fs = exp(-u2/(1.0+gg)*mi/Ti); */
+<       fs = exp(-(gg-1)*mi/Ti);
+<       f  = uniform(rng(0), 0, 1) * fs0;
+<     } while(f > fs);
+< #else
+<     upa1 = normal(rng(0), 0, vthi);
+<     upe1 = normal(rng(0), 0, vthi);
+<     uz1 = normal(rng(0), 0, vthi);
+< #endif
+< 
+<     ux = upa1;
+<     uy = upe1;
+<     uz = uz1;
+< 
+<     inject_particle(ion, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+< #ifdef SPECIES_ADVANCED_WITH_PART_EFIELD
+<     if (iparticle%particle_select_part_efield == 0) {
+<       inject_particle(ion_wo_epara, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_eparay, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi1, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi2, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi3, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi4, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+< #ifdef SPECIES_ADVANCED_WITHOUT_EPERP
+<       inject_particle(ion_wo_eperp, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+< #endif
+<     }
+< #endif
+< #ifdef CHECK_PARTICLE_CROSSING_EGTB
+<     if (iparticle%particle_select_egtb == 0) {
+<       inject_particle(ion_egtb, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<     }
+< #endif
+< 
+<     if (particle_tracing == 1) { // only tag particles in the 1st pass
+<       if (iparticle%particle_select == 0) {
+<         itracer++;
+<         /* int tag = ((((int)rank())<<19) | (itracer & 0x7ffff)); // 13 bits (8192) for rank and 19 bits (~520k) */
+<         int tag = ((((int)rank())<<13) | (itracer & 0x1fff)); // 19 bits (520k) for rank and 13 bits (8192)
+<         tag_tracer( (electron->p + electron->np-1), e_tracer, tag );
+<         tag_tracer( (ion->p      + ion->np-1),      H_tracer, tag );
+<       }
+<     }
+<   }
+< 
+< #else // ifdef TURBULENCE_SIMULATION
+< 
+1431,1434d1190
+<       inject_particle(electron_wo_egtb_sironi1, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+<       inject_particle(electron_wo_egtb_sironi2, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+<       inject_particle(electron_wo_egtb_sironi3, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+<       inject_particle(electron_wo_egtb_sironi4, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+1467,1470d1222
+<       inject_particle(ion_wo_egtb_sironi1, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+<       inject_particle(ion_wo_egtb_sironi2, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+<       inject_particle(ion_wo_egtb_sironi3, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+<       inject_particle(ion_wo_egtb_sironi4, x, y, z, ux, uy, uz, weight_s, 0, 0 );
+1533,1536d1284
+<       inject_particle(electron_wo_egtb_sironi1, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+<       inject_particle(electron_wo_egtb_sironi2, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+<       inject_particle(electron_wo_egtb_sironi3, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+<       inject_particle(electron_wo_egtb_sironi4, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+1566,1569d1313
+<       inject_particle(ion_wo_egtb_sironi1, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+<       inject_particle(ion_wo_egtb_sironi2, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+<       inject_particle(ion_wo_egtb_sironi3, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+<       inject_particle(ion_wo_egtb_sironi4, x, y, z, ux, uy, uz, weight_b, 0, 0 );
+1673,1676d1416
+<       inject_particle(electron_wo_egtb_sironi1, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi2, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi3, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(electron_wo_egtb_sironi4, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+1733,1736d1472
+<       inject_particle(ion_wo_egtb_sironi1, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi2, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi3, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+<       inject_particle(ion_wo_egtb_sironi4, x, y, z, ux*cs+uy*sn, -ux*sn+uy*cs, uz, weight, 0, 0);
+1770d1505
+< #endif // ifdef TURBULENCE_SIMULATION
+2226,2257d1960
+<   global->ede_wo_egtb_sironi1.sp_id = electron_wo_egtb_sironi1->id;
+<   global->ede_wo_egtb_sironi1.vth = sqrt(2.0)*vthe;
+<   sprintf(global->ede_wo_egtb_sironi1.fname, "e_wo_egtb_sironi1_hydro");
+< 
+<   global->edH_wo_egtb_sironi1.sp_id = ion_wo_egtb_sironi1->id;
+<   global->edH_wo_egtb_sironi1.vth = sqrt(2.0)*vthi;
+<   sprintf(global->edH_wo_egtb_sironi1.fname, "H_wo_egtb_sironi1_hydro");
+< 
+<   global->ede_wo_egtb_sironi2.sp_id = electron_wo_egtb_sironi2->id;
+<   global->ede_wo_egtb_sironi2.vth = sqrt(2.0)*vthe;
+<   sprintf(global->ede_wo_egtb_sironi2.fname, "e_wo_egtb_sironi2_hydro");
+< 
+<   global->edH_wo_egtb_sironi2.sp_id = ion_wo_egtb_sironi2->id;
+<   global->edH_wo_egtb_sironi2.vth = sqrt(2.0)*vthi;
+<   sprintf(global->edH_wo_egtb_sironi2.fname, "H_wo_egtb_sironi2_hydro");
+< 
+<   global->ede_wo_egtb_sironi3.sp_id = electron_wo_egtb_sironi3->id;
+<   global->ede_wo_egtb_sironi3.vth = sqrt(2.0)*vthe;
+<   sprintf(global->ede_wo_egtb_sironi3.fname, "e_wo_egtb_sironi3_hydro");
+< 
+<   global->edH_wo_egtb_sironi3.sp_id = ion_wo_egtb_sironi3->id;
+<   global->edH_wo_egtb_sironi3.vth = sqrt(2.0)*vthi;
+<   sprintf(global->edH_wo_egtb_sironi3.fname, "H_wo_egtb_sironi3_hydro");
+< 
+<   global->ede_wo_egtb_sironi4.sp_id = electron_wo_egtb_sironi4->id;
+<   global->ede_wo_egtb_sironi4.vth = sqrt(2.0)*vthe;
+<   sprintf(global->ede_wo_egtb_sironi4.fname, "e_wo_egtb_sironi4_hydro");
+< 
+<   global->edH_wo_egtb_sironi4.sp_id = ion_wo_egtb_sironi4->id;
+<   global->edH_wo_egtb_sironi4.vth = sqrt(2.0)*vthi;
+<   sprintf(global->edH_wo_egtb_sironi4.fname, "H_wo_egtb_sironi4_hydro");
+< 
+2507a2211,2214
+> 
+>   static double time_accumulating_hydro = 0.0;
+>   double time_before_hydro = uptime();
+> 
+2646a2354,2355
+>   time_accumulating_hydro += uptime() - time_before_hydro;
+> 
+2717a2427,2451
+> #ifdef USE_VIOU // use Bin Dong's viou library
+> 
+> #ifdef DUMP_THREE_SUCCESSIVE_STEPS
+>   if(should_dump_pre(fields)) {
+>     double time_to_dump_fields = uptime();
+> #include "viou/dump_field_with_hdf5.cc"
+>     time_to_dump_fields = uptime() - time_to_dump_fields;
+>     sim_log("Time in dumping fields: "<< time_to_dump_fields << " s");
+>   }
+>   if(should_dump_post(fields)) {
+>     double time_to_dump_fields = uptime();
+> #include "viou/dump_field_with_hdf5.cc"
+>     time_to_dump_fields = uptime() - time_to_dump_fields;
+>     sim_log("Time in dumping fields: "<< time_to_dump_fields << " s");
+>   }
+> #endif
+>   if(step() == 1 || should_dump(fields)) {
+>     double time_to_dump_fields = uptime();
+> #include "viou/dump_field_with_hdf5.cc"
+>     time_to_dump_fields = uptime() - time_to_dump_fields;
+>     sim_log("Time in dumping fields: "<< time_to_dump_fields << " s");
+>   }
+> 
+> #else // #ifdef USE_VIOU
+> 
+2738a2473,2474
+> #endif // #ifdef USE_VIOU
+> 
+2764d2499
+< 
+2767a2503,2661
+> #ifdef USE_VIOU // use Bin Dong's viou library
+> 
+>   /*--------------------------------------------------------------------------
+>    * Electron species output
+>    *------------------------------------------------------------------------*/
+> 
+> #ifdef TURBULENCE_MIXING_DIAGNOSTICS
+> 
+> #ifdef DUMP_THREE_SUCCESSIVE_STEPS
+>   if(should_dump_pre(ehydro)) {
+>     const char *speciesname = "electronTop";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_post(ehydro)) {
+>     const char *speciesname = "electronTop";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_pre(ehydro)) {
+>     const char *speciesname = "electronBot";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>   }
+>   if(should_dump_post(ehydro)) {
+>     const char *speciesname = "electronBot";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> #endif
+>   if(should_dump(ehydro)) {
+>     const char *speciesname = "electronTop";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump(ehydro)) {
+>     const char *speciesname = "electronBot";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> 
+> #else // #ifdef TURBULENCE_MIXING_DIAGNOSTICS
+> 
+> #ifdef DUMP_THREE_SUCCESSIVE_STEPS
+>   if(should_dump_pre(ehydro)) {
+>     const char *speciesname = "electron";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_post(ehydro)) {
+>     const char *speciesname = "electron";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> #endif
+>   if(should_dump(ehydro)) {
+>     const char *speciesname = "electron";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> 
+> #endif // #ifdef TURBULENCE_MIXING_DIAGNOSTICS
+> 
+>   /*--------------------------------------------------------------------------
+>    * Ion species output
+>    *------------------------------------------------------------------------*/
+> 
+> #ifdef TURBULENCE_MIXING_DIAGNOSTICS
+> 
+> #ifdef DUMP_THREE_SUCCESSIVE_STEPS
+>   if(should_dump_pre(Hhydro)) {
+>     const char *speciesname = "ionTop";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_post(Hhydro)) {
+>     const char *speciesname = "ionTop";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_pre(Hhydro)) {
+>     const char *speciesname = "ionBot";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_post(Hhydro)) {
+>     const char *speciesname = "ionBot";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> #endif
+>   if(should_dump(Hhydro)) {
+>     const char *speciesname = "ionTop";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump(Hhydro)) {
+>     const char *speciesname = "ionBot";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> 
+> #else // #ifdef TURBULENCE_MIXING_DIAGNOSTICS
+> 
+> #ifdef DUMP_THREE_SUCCESSIVE_STEPS
+>   if(should_dump_pre(Hhydro)) {
+>     const char *speciesname = "ion";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+>   if(should_dump_post(Hhydro)) {
+>     const char *speciesname = "ion";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> #endif
+>   if(should_dump(Hhydro)) {
+>     const char *speciesname = "ion";
+>     double time_to_dump_hydro = uptime();
+> #include "viou/dump_hydro_with_hdf5.cc"
+>     time_to_dump_hydro = uptime() - time_to_dump_hydro;
+>     sim_log("Time in dumping hydro: "<< time_to_dump_hydro << " s");
+>   }
+> #endif
+> 
+> #else // #ifdef USE_VIOU
+> 
+2905a2800,2801
+> #endif // #ifdef USE_VIOU
+> 
+3188c3084
+<     /* #include "dump_with_h5part.cc" */
+---
+>     #include "dump_with_h5part.cc"
+3232,3241c3128,3129
+<     if (isp < global->nsp_efield-14) {        // remove perpendicular electric field but keep ExB drift
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 5, 0);
+<     } else if (isp < global->nsp_efield-12) { // set gamma to a few in regions with |E| > |B| once and then remove E
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 4, global->gamma_sironi4);
+<     } else if (isp < global->nsp_efield-10) { // set gamma to a few in regions with |E| > |B| once and then remove E
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 4, global->gamma_sironi3);
+<     } else if (isp < global->nsp_efield-8) { // set gamma to a few in regions with |E| > |B| (Sironi's method)
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 3, global->gamma_sironi2);
+<     } else if (isp < global->nsp_efield-6) { // set gamma to a few in regions with |E| > |B| (Sironi's method)
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 3, global->gamma_sironi1);
+---
+>     if (isp < global->nsp_efield-6) {        // remove perpendicular electric field but keep ExB drift
+>       advance_p_efield(s, dummy_a_efield, interpolator_array, 3);
+3243c3131
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 2, 0);
+---
+>       advance_p_efield(s, dummy_a_efield, interpolator_array, 2);
+3245c3133
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 1, 0);
+---
+>       advance_p_efield(s, dummy_a_efield, interpolator_array, 1);
+3247c3135
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 0, 0);
+---
+>       advance_p_efield(s, dummy_a_efield, interpolator_array, 0);
+3249c3137
+<       advance_p_efield(s, dummy_a_efield, interpolator_array, 100, 0);
+---
+>       advance_p_efield(s, dummy_a_efield, interpolator_array, 100);
