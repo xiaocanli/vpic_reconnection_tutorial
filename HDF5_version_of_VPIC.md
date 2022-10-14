@@ -77,9 +77,9 @@ GROUP "/" {
 
 You can use [quick_check_vpic](https://github.com/xiaocanli/quick_check_vpic) to check the data. For detailed analysis using the HDF5 files, please follow `hdf5_analysis_example.py` in this directory. It gets the VPIC simulation information and plot $j_y$. Reading other variables is similar. After reading into the memory, the rest will be the same. You can still use most of your analysis code. If the data is really large (e.g., in 3D simulations), we use ParaView or VisIt to visualize the data. In `field_hdf5/` and `hydro_hdf5/`, there are files ending with `.xdmf`, which can be loaded into ParaView or VisIt directly. There is a python script `mime1836_sigmaic256_bg00/gen_xdmf.py` to generate a single `xdmf` file for both fields and hydro data when necessary.
 
-For 2D simulations with periodic boundary conditions along $x$ and conducting boundaries along $z$, you can use `ay_gda_single.f90` in `mime1836_sigmaic256_bg00` the calculate the $y$-component of the vector potential $A_y$ from the magnetic field data. Then, you can plot the magnetic field lines the contour of $A_y$. Please change a few parameters before compiling the code: `it1`, `it2`, `interval`, `hdf5_fields`, `nx`, `nz`, `xmax`, and `zmax`. These parameters can be obtained from `info` and file information in `field_hdf5/`. On Cori, you can compile the code using
+For 2D simulations with periodic boundary conditions along $x$ and conducting boundaries along $z$, you can use `ay_gda_hdf5.f90` in the deck to calculate the $y$-component of the vector potential $A_y$ from the magnetic field data. Then, you can plot the magnetic field lines the contour of $A_y$. Please change a few parameters before compiling the code: `it1`, `it2`, `interval`, `hdf5_fields`, `nx`, `nz`, `xmax`, and `zmax`. These parameters can be obtained from `info` and file information in `field_hdf5/`. On Cori, you can compile the code using
 ```sh
 module load cray-hdf5 cray-fftw
-ftn -o ay_gda_single ay_gda_single.f90
+ftn -o ay_gda_hdf5 ay_gda_hdf5.f90
 ```
-Then, you can run the code `./ay_gda_single`, which will generate a file `data/Ay.gda`. The file is in binary format and has all time frames in the same file (`nt = it2-it1+1` frames). The data is organized in memory `nx*nz*nt`, where `nx` changes the fastest.
+Then, you can run the code `./ay_gda_hdf5`, which will generate a file `data/Ay.gda`. The file is in binary format and has all time frames in the same file (`nt = it2-it1+1` frames). The data is organized in memory `nx*nz*nt`, where `nx` changes the fastest.
