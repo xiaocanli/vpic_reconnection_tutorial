@@ -1,0 +1,12 @@
+
+Currently Loaded Modules:
+  1) craype-x86-milan                        8) cray-mpich/8.1.24        15) Nsight-Systems/2022.2.1
+  2) libfabric/1.15.2.0                      9) craype/2.7.19            16) cudatoolkit/11.7
+  3) craype-network-ofi                     10) gcc/11.2.0               17) craype-accel-nvidia80
+  4) xpmem/2.5.2-2.4_3.30__gd0f7936.shasta  11) perftools-base/23.02.0   18) gpu/1.0
+  5) PrgEnv-gnu/8.3.3                       12) cpe/23.02                19) cray-hdf5-parallel/1.12.2.3
+  6) cray-dsmml/0.2.2                       13) xalt/2.10.2
+  7) cray-libsci/23.02.1.1                  14) Nsight-Compute/2022.1.1
+
+ 
+
