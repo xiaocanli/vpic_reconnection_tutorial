@@ -19,6 +19,8 @@ cd build
 ../arch/cori-knl-openmp-hdf5
 ```
 
+On Perlmutter, for the CPU nodes, use `perlmutter-openmp-hdf5` instead. For the GPU nodes, please refer [decks/problems.md](decks/problems.md) for an instruction.
+
 On Frontera, use `../arch/tacc-frontera-hdf5` instead. It will produce the `bin/vpic` for compiling the deck. For Frontera, you need to modify `bin/vpic` to link the HDF5 library by adding `Wl,-rpath,$TACC_HDF5_LIB -L$TACC_HDF5_LIB -lhdf5 -lz` to `bin/vpic`. An example is given in this directory.
 
 Before compiling the deck, you need to load `module load cray-hdf5-parallel` on Cori or `module load phdf5` on Frontera. Modify `VPIC_DIR` in `Makefile_cori` or `Makefile_tacc`  and compile the deck using `make -f Makefile_cori` or `make -f Makefile_tacc`. There is a script `compile_deck.sh` for helping compile the deck and copy the source files to a safe place. 

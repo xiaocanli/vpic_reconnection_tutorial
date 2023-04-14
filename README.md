@@ -1,5 +1,5 @@
 # Running Reconnection Simulations Using VPIC
-The tutorial is based on magnetic reconnection simulations. The simulation decks are in [decks](decks). We will assume you can access the NERSC's Cori or TACC's Frontera, but the procedure can be generalized to other machines without too much additional effort.
+The tutorial is based on magnetic reconnection simulations. The simulation decks are in [decks](decks). We will assume you can access the NERSC's Cori or Perlmutter or TACC's Frontera, but the procedure can be generalized to other machines without too much additional effort.
 
 The old version of VPIC uses binary (N-to-N) output (it is still the default for the master branch). The newer versions now support HDF5 file output. We will recommend using the HDF5 version of VPIC.
 
