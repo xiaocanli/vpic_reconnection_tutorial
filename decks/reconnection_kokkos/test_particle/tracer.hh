@@ -245,11 +245,15 @@
     for(int i = 1; i < num_tracer_species ; ++i) {                            \
       s0 = s;                                                                 \
       s = s->next;                                                            \
+      UNREGISTER_OBJECT( s0->pb_diag );                                       \
+      UNREGISTER_OBJECT( s0 );                                                \
     }                                                                         \
                                                                               \
     /* set species_list to point to the first physical */                     \
     /* particle species */                                                    \
     species_list = s->next;                                                   \
+    UNREGISTER_OBJECT( s->pb_diag );                                          \
+    UNREGISTER_OBJECT( s );                                                   \
     s->next      = NULL ;                                                     \
   } END_PRIMITIVE
 
