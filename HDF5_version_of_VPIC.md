@@ -7,6 +7,7 @@ git clone https://github.com/lanl/vpic
 cd vpic
 git checkout hdf5_rebase
 ```
+> **_NOTE:_**  The hydro dump in the `hdf5_rebase` branch <s>https://github.com/lanl/vpic</s> has problems (https://github.com/lanl/vpic/issues/146). Please use the `hdf5_rebase` branch in https://github.com/xiaocanli/vpic instead.
 
 I usually rename the directory as `vpic_hdf5_rebase` to differentiate with other branches.
 
