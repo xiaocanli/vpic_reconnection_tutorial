@@ -1,0 +1,13 @@
+
+Currently Loaded Modules:
+  1) craype-x86-milan                        6) cray-dsmml/0.2.2       11) perftools-base/23.03.0
+  2) libfabric/1.15.2.0                      7) cray-libsci/23.02.1.1  12) cpe/23.03
+  3) craype-network-ofi                      8) cray-mpich/8.1.25      13) xalt/2.10.2
+  4) xpmem/2.6.2-2.5_2.27__gd067c3f.shasta   9) craype/2.7.20          14) cpu/1.0
+  5) PrgEnv-gnu/8.3.3                       10) gcc/11.2.0             15) cray-hdf5-parallel/1.12.2.3 (io)
+
+  Where:
+   io:  Input/output software
+
+ 
+

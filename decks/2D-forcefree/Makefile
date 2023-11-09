@@ -1,0 +1,40 @@
+VPIC_DIR = /global/homes/x/xiaocan/vpic_master/vpic
+BUILD = build/CORI_KNL_CRAYPE2.5.18
+
+all:
+
+	$(VPIC_DIR)/$(BUILD)/bin/vpic_h5part reconnection.cc
+
+
+cleanall: 	
+#	cd translate; make clean 
+	-rm data/*
+	-rm data1/*
+	-rm -rf hydro
+	-rm -rf particle
+	-rm -rf restore*
+	-rm -rf rundata
+	-rm -rf fields
+	-rm -rf tracer
+	-rm -rf injectors
+	-rm -rf spectrum
+	-rm -rf hydro-avg
+	-rm -rf fields-avg
+	-rm -rf restart-avg
+	-rm -rf field_hdf5
+	-rm -rf hydro_hdf5
+#	-rm translate
+	-rm *.op
+	-rm *.ppu
+	-rm *.vpc
+	-rm outfile
+	-rm info
+	-rm info.bin
+	-rm *.eps
+	-rm *.mpg
+	-rm *.optrpt
+	-rm core.*
+	-rm *.Linux
+	-rm latest_restart
+	-rm *.data
+	-rm *~
