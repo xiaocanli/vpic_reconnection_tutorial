@@ -11,27 +11,39 @@ git checkout hdf5_rebase
 
 I usually rename the directory as `vpic_hdf5_rebase` to differentiate with other branches.
 
-Copy `cori-knl-openmp-hdf5` to `vpic_hdf5_rebase/arch`
+Copy `perlmutter-openmp-hdf5` to `vpic_hdf5_rebase/arch`
 
 ```bash
 cd vpic_hdf5_rebase
 mkdir build
 cd build
-../arch/cori-knl-openmp-hdf5
+../arch/perlmutter-openmp-hdf5
 ```
 
-On Perlmutter, for the CPU nodes, use `perlmutter-openmp-hdf5` instead. For the GPU nodes, please refer [decks/problems.md](decks/problems.md) for an instruction.
+For Perlmutter GPU nodes, please refer [decks/problems.md](decks/problems.md) for an instruction.
 
 On Frontera, use `../arch/tacc-frontera-hdf5` instead. It will produce the `bin/vpic` for compiling the deck. For Frontera, you need to modify `bin/vpic` to link the HDF5 library by adding `Wl,-rpath,$TACC_HDF5_LIB -L$TACC_HDF5_LIB -lhdf5 -lz` to `bin/vpic`. An example is given in this directory.
 
-Before compiling the deck, you need to load `module load cray-hdf5-parallel` on Cori or `module load phdf5` on Frontera. Modify `VPIC_DIR` in `Makefile_cori` or `Makefile_tacc`  and compile the deck using `make -f Makefile_cori` or `make -f Makefile_tacc`. There is a script `compile_deck.sh` for helping compile the deck and copy the source files to a safe place. 
+We will use `decks/2D-forcefree` as an example, which is a nonrelativistic reconnection problem starting from a forcefree current sheet. Before compiling the deck, you need to load `module load cpu cray-hdf5-parallel` on Perlmutter or `module load phdf5` on Frontera. Modify `VPIC_DIR` in `Makefile_perlmutter` or `Makefile_tacc`  and compile the deck using `make -f Makefile_perlmutter` or `make -f Makefile_tacc`. There is a script `compile_deck.sh` for helping compile the deck and copy the source files to a safe place. 
 
-To do a test on an interactive session on Cori,
+To do a test on an interactive session on Perlmutter,
 
 ```bash
-salloc -N 1 -q interactive -C knl,quad,cache -t 04:00:00 -L SCRATCH
-./run_test.sh
+salloc --nodes 4 --qos interactive --time 04:00:00 --constraint cpu --account=m4054
+
+module load cpu cray-hdf5-parallel
+
+export OMP_NUM_THREADS=2
+export OMP_PLACES=threads
+export OMP_PROC_BIND=spread
+
+srun -n 512 -N 4 -c 2 --cpu_bind=cores ./reconnection.Linux --tpp 2
 ```
+Or you can submit a job
+```sh
+sbatch perlmutter.batch
+```
+It will take a couple of hours to finish the simulation.
 
 On Frontera, you can request an interactive session using
 
@@ -78,9 +90,9 @@ GROUP "/" {
 - `px/|rho|/particle_mass` with be the commonly used `uex` or `uix`. `particle_mass` is 1 for electrons or `mi_me` for ions.
 - `txx - (jx/rho)*px` will be `pexx` or `pixx`. `txy - (jx/rho)*py` will be `pexy` or `pixy`. `txy - (jy/rho)*px` will be `peyx` or `piyx`. Similar for other pressure tensor components.
 
-You can use [quick_check_vpic](https://github.com/xiaocanli/quick_check_vpic) to check the data. For detailed analysis using the HDF5 files, please follow `hdf5_analysis_example.py` in this directory. It gets the VPIC simulation information and plot $j_y$. Reading other variables is similar. After reading into the memory, the rest will be the same. You can still use most of your analysis code. If the data is really large (e.g., in 3D simulations), we use ParaView or VisIt to visualize the data. In `field_hdf5/` and `hydro_hdf5/`, there are files ending with `.xdmf`, which can be loaded into ParaView or VisIt directly. There is a python script `mime1836_sigmaic256_bg00/gen_xdmf.py` to generate a single `xdmf` file for both fields and hydro data when necessary.
+You can use [quick_check_vpic](https://github.com/xiaocanli/quick_check_vpic) to check the data. For detailed analysis using the HDF5 files, please follow `hdf5_analysis_example.py` in this directory. It gets the VPIC simulation information and plot $j_y$. Reading other variables is similar. After reading into the memory, the rest will be the same. You can still use most of your analysis code. If the data is really large (e.g., in 3D simulations), we use ParaView or VisIt to visualize the data. In `field_hdf5/` and `hydro_hdf5/`, there are files ending with `.xdmf`, which can be loaded into ParaView or VisIt directly. There is a python script `2D-forcefree/gen_xdmf.py` to generate a single `xdmf` file for both fields and hydro data when necessary.
 
-For 2D simulations with periodic boundary conditions along $x$ and conducting boundaries along $z$, you can use `ay_gda_hdf5.f90` in the deck to calculate the $y$-component of the vector potential $A_y$ from the magnetic field data. Then, you can plot the magnetic field lines the contour of $A_y$. Please change a few parameters before compiling the code: `it1`, `it2`, `interval`, `hdf5_fields`, `nx`, `nz`, `xmax`, and `zmax`. These parameters can be obtained from `info` and file information in `field_hdf5/`. On Cori, you can compile the code using
+For 2D simulations with periodic boundary conditions along $x$ and conducting boundaries along $z$, you can use `ay_gda_hdf5.f90` in the deck to calculate the $y$-component of the vector potential $A_y$ from the magnetic field data. Then, you can plot the magnetic field lines the contour of $A_y$. Please change a few parameters before compiling the code: `it1`, `it2`, `interval`, `hdf5_fields`, `nx`, `nz`, `xmax`, and `zmax`. These parameters can be obtained from `info` and file information in `field_hdf5/`. On Perlmutter, you can compile the code using
 ```sh
 module load cray-hdf5 cray-fftw
 ftn -o ay_gda_hdf5 ay_gda_hdf5.f90

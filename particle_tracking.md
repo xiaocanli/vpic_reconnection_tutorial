@@ -1,6 +1,6 @@
 # Particle Tracking in VPIC
 
-We can select a small fraction of particles in VPIC and track their history in high cadence as the simulation is running. Here I use `mime1836_sigmaic256_bg00/reconnection.cc` as an example. The code is mixed with pieces from different generations. There are many parameters. You can keep most of them as default and modify the following parameters.
+We can select a small fraction of particles in VPIC and track their history in high cadence as the simulation is running. Here I use `2D-forcefree/reconnection.cc` as an example. The code is mixed with pieces from different generations. There are many parameters. You can keep most of them as default and modify the following parameters.
 
 - Change `particle_tracking` to 1 to turn on particle tracking.
 - Change `particle_select` to a reasonable number. We will select one particle every `particle_select` particles. If we plan to select about 1 million electrons/ions in the whole simulation, `particle_select` should be about $n_x\times n_y\times n_z\times\texttt{nppc}/10^6$.

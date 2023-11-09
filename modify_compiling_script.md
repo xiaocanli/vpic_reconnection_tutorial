@@ -1,5 +1,5 @@
 # Modify the Compiling Script
-We only provide compiling scripts (cori-knl-openmp-hdf5, perlmutter-openmp-hdf5, tacc-frontera-hdf5) for NERSC's Cori or Perlmutter or TACC's Frontera in this tutorial. However, you can modify the scripts for your platforms without too much effort since the scripts have detailed explanations for each variable—please check out either of the scripts. Usually, you might need to modify the following variables.
+We only provide compiling scripts (`cori-knl-openmp-hdf5`, `perlmutter-openmp-hdf5`, `tacc-frontera-hdf5`) for NERSC's Cori or Perlmutter or TACC's Frontera in this tutorial. However, you can modify the scripts for your platforms without too much effort since the scripts have detailed explanations for each variable—please check out either of the scripts. Usually, you might need to modify the following variables.
 
 * `VCOM`: compiler. It will determine the corresponding compiling flags.
 * `VMPI`: MPI implementation. I will determine the modules to load. These modules might have different names on different platforms. Please make corresponding changes.
