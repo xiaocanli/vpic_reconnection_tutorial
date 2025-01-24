@@ -5,7 +5,7 @@
 * [2D-Lx150-bg0.2-150ppc-beta002](2D-Lx150-bg0.2-150ppc-beta002): 2D nonrelativistic reconnection
 * [3D-Lx150-bg0.2-150ppc-beta002](3D-Lx150-bg0.2-150ppc-beta002): 3D nonrelativistic reconnection. It is similar to the 2D deck.
 * [mime1_sigmae40_vthe05_db1](mime1_sigmae40_vthe05_db1): relativistic turbulence
-* [sigmae100_bg00_400de](sigmae100_bg00_400de): relativistic reconnection with tracer particles. Please follow `tracer_eb.ipynb` on how to run the simulation and analyze the data.
+* [sigmae100_bg00_400de](sigmae100_bg00_400de): relativistic reconnection with tracer particles. Please follow [tracer_eb.ipynb](sigmae100_bg00_400de/tracer_eb.ipynb) on how to run the simulation and analyze the data.
 
 ## Reconnection using vpic-kokkos for GPU nodes
 
