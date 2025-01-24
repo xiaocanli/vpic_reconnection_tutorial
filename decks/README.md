@@ -5,8 +5,13 @@
 * [2D-Lx150-bg0.2-150ppc-beta002](2D-Lx150-bg0.2-150ppc-beta002): 2D nonrelativistic reconnection
 * [3D-Lx150-bg0.2-150ppc-beta002](3D-Lx150-bg0.2-150ppc-beta002): 3D nonrelativistic reconnection. It is similar to the 2D deck.
 * [mime1_sigmae40_vthe05_db1](mime1_sigmae40_vthe05_db1): relativistic turbulence
+* [sigmae100_bg00_400de](sigmae100_bg00_400de): relativistic reconnection with tracer particles. Please follow `tracer_eb.ipynb` on how to run the simulation and analyze the data.
 
 ## Reconnection using vpic-kokkos for GPU nodes
+
+> [!WARNING]
+> This part is outdated.
+
 VPIC can be run on GPUs using the [vpic-kokkos](https://github.com/lanl/vpic-kokkos). The official documentation is at [VPIC-Kokkos’s documentation](https://lanl.github.io/vpic-kokkos/index.html). Please read it and maybe do some small tests. We are still working on migrating the simulations decks to vpic-kokkos, so the following instruction might change. We added HDF5 IO for vpic-kokkos and included tracer particles, which require some modifications of the devel branch of vpic-kokkos. Please use the modified vpic-kokkos at https://github.com/xiaocanli/vpic-kokkos
 ```sh
 git clone --recursive https://github.com/xiaocanli/vpic-kokkos

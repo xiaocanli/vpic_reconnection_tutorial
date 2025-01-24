@@ -1,0 +1,9 @@
+
+Currently Loaded Modules:
+  1) craype-x86-milan                        5) PrgEnv-gnu/8.5.0      9) craype/2.7.30           13) sqs/2.0
+  2) libfabric/1.20.1                        6) cray-dsmml/0.2.2     10) gcc-native/12.3         14) darshan/3.4.4
+  3) craype-network-ofi                      7) cray-libsci/23.12.5  11) perftools-base/23.12.0  15) cpu/1.0
+  4) xpmem/2.6.2-2.5_2.40__gd067c3f.shasta   8) cray-mpich/8.1.28    12) cpe/23.12               16) cray-hdf5-parallel/1.12.2.9
+
+ 
+

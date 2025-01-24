@@ -1,0 +1,16 @@
+#!/bin/bash
+#SBATCH -A m2407
+#SBATCH -C cpu
+#SBATCH -q regular
+#SBATCH -t 4:00:00
+#SBATCH -N 4
+#SBATCH --ntasks-per-node=128
+#SBATCH -c 2
+
+module load cpu cray-hdf5-parallel
+
+export OMP_NUM_THREADS=2
+export OMP_PLACES=threads
+export OMP_PROC_BIND=spread
+
+srun -n 512 -N 4 -c 2 --cpu_bind=cores ./reconnection.Linux --tpp 2
