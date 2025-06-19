@@ -40,7 +40,8 @@ tstep_interval=$(echo $(grep -i tracer_interval $runpath/info | cut -d"=" -f2 ))
 tstep_min=0
 tstep_max=$(get_max_tracer_step $runpath $tstep_interval )
 is_recreate=0 # recreate a file?
-nsteps=$(echo $(grep -i tracer_file_interval $runpath/info | cut -d"=" -f2 ))
+tracer_file_interval=$(echo $(grep -i tracer_file_interval $runpath/info | cut -d"=" -f2 ))
+nsteps=$((tracer_file_interval / tstep_interval))
 echo $tstep_interval $nsteps
 reduced_tracer=0
 reduce_tracer_time=0
